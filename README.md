@@ -6,14 +6,19 @@ Access to the data used can be requested through dbGaP (Sweden-Schizophrenia Pop
 
 What does this repository contain?
 main_MLbaseline.py -> main predictive function for the linear baseline
+
 main_NN.py -> main predictive function for the different neural net architectures: NNlogreg, NNlinear, NNsmalldense NNlargedense, NNbiosparseKEGG, NNbiosparseCPATHDB, NNdo, GCNmutlist, TNNmutlist, CNNhc Args: gpu_devicename (str) weight_decay (float) dropout (float) penalty (str): 'l1','l2' batch_size (int) epochs (int)
 
 parsers.py -> functions to parse annotated VCF files from Annovar into the different representations parserMultiVCF: naieve SNPvector and Hilbert curve zygosity image parser parserGC: gene-centric encoding parser parserMutlist: mutation list encoding parser
 
 sources/models.py -> neural net layers and architectures for gene-centric models, mutation list models and Hilbert curve models.
+
 sources/BioNets.py -> code for building biological sparse networks to build neural network layers from
+
 sources/wrappers.py -> neural net wrappers with dataset, fit and predict functions for gene-centric models, mutation list models and Hilbert curve models
+
 sources/utils.py -> scaler function for gene-centric representation on GPU
+
 README.md -> this readme
 
 How do I annotate exomes with ANNOVAR?
