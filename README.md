@@ -1,5 +1,5 @@
 What is this repository for?
-SchizophreniaGI is a Neural Network based Genome Interpretation (GI) framework for the exome-based in-silico discrimination of healthy controls and schizophrenia patients. More details will be soon available in: Verplaetse, P., Moreau, Y. et al. XXX. The code here contains a standalone version of SchizophreniaGI, which takes as input an ANNOVAR-annotated .txt version of a VCF file and outputs the predicted likelihood of schizophrenia.
+SchizophreniaGI is a Neural Network based Genome Interpretation (GI) framework for the exome-based in-silico discrimination of healthy controls and schizophrenia patients. More details will be soon available in: Verplaetse, N., Moreau, Y., Raimondi, D. XXX. The code here contains a standalone version of SchizophreniaGI, which takes as input an ANNOVAR-annotated .txt version of a VCF file and outputs the predicted likelihood of schizophrenia.
 
 Where can I find the data?
 Access to the data used can be requested through dbGaP (Sweden-Schizophrenia Population-Based Case-Control Exome Sequencing project dbGaP phs000473.v2.p).
