@@ -19,6 +19,8 @@ sources/wrappers.py -> neural net wrappers with dataset, fit and predict functio
 
 sources/utils.py -> scaler function for gene-centric representation on GPU
 
+requirements.yml 
+
 README.md -> this readme
 
 # How do I annotate exomes with ANNOVAR? #
