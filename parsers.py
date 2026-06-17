@@ -368,7 +368,7 @@ def mainSNPvectorAndHC():
         ids = pickle.load(open("ids_multivcf.pickle", 'rb'))
         multivcffile =  "multivcf.vcf"
         nbvariants = 1811204
-        snpvector, keptvariants, zygosities, distances, HCzygosity = parseMultiVCFintoSNPvector(multivcffile, nbvariants, ids, genomeversion='hg19', remove_samevaluesnp =True, zygosityHC=True)
+        snpvector, keptvariants, zygosities, distances, HCzygosity = parseMultiVCF(multivcffile, nbvariants, ids, genomeversion='hg19', remove_samevaluesnp =True, zygosityHC=True)
         
         return snpvector, HCzygosity
 
@@ -438,7 +438,7 @@ def mainMutlist():
         for index,i in enumerate(sampleids):
                 print(index, i)
                 annfile = "annotatedfile_" + i + ".avinput.hg19_multianno.txt"
-                db[index],l = parserMutlist(file, genes, missenseOnly=True, onlyRegions=["exonic"])
+                db[index],l = parserMutlist(annfile, genes, missenseOnly=True, onlyRegions=["exonic"])
                 lens.append(l)
 
         return np.array(db, dtype=np.float32), np.array(lens)
