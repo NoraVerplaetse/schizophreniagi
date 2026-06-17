@@ -81,11 +81,6 @@ def main(args):
 		genesdict=pickle.load(open(PATH + "genesdictRefGeneAnnovarComplete_withoutzerogenes", "rb"))
 		genes=list(genesdict.values())
 
-		device = t.device(devicename)
-		hyperparameters={'device': t.device(devicename), 'epochs': epochs, 'learning_rate': 1e-3, 'weight_decay': weight_decay,'dropout': dropout, 'batch_size':batch_size}
-		print("Running on ",hyperparameters['device'])
-		print("Epochs: ", hyperparameters['epochs'], "Weight decay: ", hyperparameters['weight_decay'], "penalty: ", pen,  "Drop out: ", str(dropout), "batch size: ", hyperparameters['batch_size'])
-
 		#### CREATE SPARSE BIONET #####
 		edges_genepw=list(pickle.load(open(PATH+ "hierData/kegg/edges_genepw.pickle", "rb")))
 		for j in edges_genepw:
@@ -96,6 +91,12 @@ def main(args):
 		net_genepw=BN.BiologicalNetwork(edges_genepw, genes, pwlist)
 		globalNet=BN.BiologicalHierarchy([net_genepw])
 		print("BiologicalHierarchy built")
+
+	device = t.device(devicename)
+	hyperparameters={'device': t.device(devicename), 'epochs': epochs, 'learning_rate': 1e-3, 'weight_decay': weight_decay,'dropout': dropout, 'batch_size':batch_size}
+	print("Running on ",hyperparameters['device'])
+	print("Epochs: ", hyperparameters['epochs'], "Weight decay: ", hyperparameters['weight_decay'], "penalty: ", pen,  "Drop out: ", str(dropout), "batch size: ", hyperparameters['batch_size'])
+
 
 	CV_SETS=3
 	auctest=[]
@@ -156,7 +157,7 @@ def main(args):
 			print("shapes of Xtest and ytest ", Xtest.shape, ytest.shape)
 			predtest=wrapper.predict(Xtest, hyperparameters['device'], batch_size=hyperparameters['batch_size'])
 			
-			auc_train += roc_auc_score(ytrain, predtrain)
+			auc_train += roc_auc_score(ytrainset, predtrain)
 			auc_test += roc_auc_score(ytest, predtest)
 
 			del Xtest, ytest
