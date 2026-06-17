@@ -36,14 +36,13 @@ from torch.autograd import Variable
 import numpy as np
 
 def main(args):
-    """  main predictive function for the different neural net architectures
-    Args:       gpu_devicename (str) 
-                weight_decay (float) 
-                dropout (float) 
-                penalty (str): 'l1'or'l2'
-                batch_size (int) epochs (int) 
-  
-    """
+	"""  main predictive function for the different neural net architectures
+	Args:       gpu_devicename (str) 
+	weight_decay (float) 
+				dropout (float) 
+				penalty (str): 'l1'or'l2'
+				batch_size (int) epochs (int) 
+	"""
 	devicename = args[1]
 	weight_decay=float(args[2])
 	dropout=float(args[3])
