@@ -148,7 +148,8 @@ def main(args):
 			wrapper.fit(Xtrainset, ytrainset, hyperparameters['device'], epochs=hyperparameters['epochs'], batch_size=hyperparameters['batch_size'] , weight_decay = hyperparameters['weight_decay'], learning_rate=hyperparameters['learning_rate'], penalty=pen)
             
 			predtrain=wrapper.predict(Xtrainset, hyperparameters['device'], batch_size=hyperparameters['batch_size'])
-
+			
+			auc_train += roc_auc_score(ytrainset, predtrain)
 			del Xtrainset, ytrainset
 			gc.collect()
 
@@ -157,7 +158,6 @@ def main(args):
 			print("shapes of Xtest and ytest ", Xtest.shape, ytest.shape)
 			predtest=wrapper.predict(Xtest, hyperparameters['device'], batch_size=hyperparameters['batch_size'])
 			
-			auc_train += roc_auc_score(ytrainset, predtrain)
 			auc_test += roc_auc_score(ytest, predtest)
 
 			del Xtest, ytest
