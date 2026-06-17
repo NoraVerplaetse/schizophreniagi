@@ -22,21 +22,24 @@
 
 import sys, os, pickle
 import numpy as np
+import math
+from hilbertcurve.hilbertcurve import HilbertCurve
+from scipy.sparse import coo_matrix
 
 count_nonsyn = True
 features_withscores = {"UTR3":0, "UTR5":1, "splicing":2, "upstream":3, "downstream":4, "intronic":5, "ncRNA_exonic":6, "ncRNA_intronic":7, "ncRNA_splicing":8, "exonic_nonframeshift_insertion":9, "exonic_nonframeshift_deletion":10, "exonic_stoploss":11,  "exonic_stopgain":12, "exonic_frameshift_insertion":13, "exonic_frameshift_deletion":14,  "exonic_startloss":15, "exonic_nonsynonymousSNV": 16,"provean_low":17, "provean_mid":18, "provean_high":19, "mcap_low":20, "mcap_mid":21, "mcap_high":22, "metasvm_low":23, "metasvm_mid":24, "metasvm_high":25, "deogen_low":26, "deogen_mid":27, "deogen_high":28, "RVIS":29, "GDI":30, "pHI":31, "pRec":32}
 features_noscores = {"UTR3":0, "UTR5":1, "splicing":2, "upstream":3, "downstream":4, "intronic":5, "ncRNA_exonic":6, "ncRNA_intronic":7, "ncRNA_splicing":8, "exonic_nonframeshift_insertion":9, "exonic_nonframeshift_deletion":10, "exonic_stoploss":11,  "exonic_stopgain":12, "exonic_frameshift_insertion":13, "exonic_frameshift_deletion":14, "exonic_startloss":15, "exonic_nonsynonymousSNV": 16}
 
 def parseMultiVCF(multivcffile, nbvariants, ids, genomeversion='hg19', SNPvector=True, remove_samevaluesnp =True, zygosityHC=True):
-"""
-This function reads a multiVCF file containing the zygosities for all snps for all samples.
+        """
+        This function reads a multiVCF file containing the zygosities for all snps for all samples.
 
-If SNPvector == True, it will store the zygosities for all variants in the dataset in a feature vector and this for all samples present in ids. 
-Value zero means variant is not present or missing, value 1 means variant is heterozygous, value 2 homozygous.
-If remove_samevaluesnp=True, the variants with the same value for all the samples will be removed.
-If zygosityHC == True, for each sample id, it will create a hilbert curve in the form of sparse coo_matrix with the genomic coordinates as 2D coordinates in the image, and the zygosity as value. 
-Value zero means variant is not present or missing, value 1 means variant is heterozygous, value 2 homozygous.
-"""
+        If SNPvector == True, it will store the zygosities for all variants in the dataset in a feature vector and this for all samples present in ids. 
+        Value zero means variant is not present or missing, value 1 means variant is heterozygous, value 2 homozygous.
+        If remove_samevaluesnp=True, the variants with the same value for all the samples will be removed.
+        If zygosityHC == True, for each sample id, it will create a hilbert curve in the form of sparse coo_matrix with the genomic coordinates as 2D coordinates in the image, and the zygosity as value. 
+        Value zero means variant is not present or missing, value 1 means variant is heterozygous, value 2 homozygous.
+        """
         snpdatamx=np.zeros((len(ids), nbvariants), dtype=np.int8)
         variants=[]
         count_heterozyg=0
@@ -49,6 +52,7 @@ Value zero means variant is not present or missing, value 1 means variant is het
         cumsum_chrom=list(np.cumsum(chromlengths))
         cumsum_chrom.insert(0,0)
         bits=math.ceil(math.log(math.sqrt(cumsum_chrom[-1]),2))
+        HC = HilbertCurve(bits,2,n_procs=0)
 
         with open(multivcffile) as vcffile:
                 linenr=0
@@ -65,7 +69,7 @@ Value zero means variant is not present or missing, value 1 means variant is het
                                 linenr+=1
                                 line=vcffile.readline()
                                 continue
-
+                        chrom = int(chrom)
                         pos=int(tmp[1])
                         varid=tmp[2]
                         ref=tmp[3]
@@ -117,7 +121,7 @@ Value zero means variant is not present or missing, value 1 means variant is het
                 np.save("HCzyg.npy", db)
                 print(len(db))
 
-        if SNPvector and zygositiyHC:
+        if SNPvector and zygosityHC:
                 return newdatamx, keptvariants, zygosities, distances, db
         elif SNPvector:
                 return newdatamx, keptvariants
