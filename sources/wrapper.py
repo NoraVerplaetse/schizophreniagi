@@ -31,7 +31,6 @@ import sources.wrappers as wr
 from statistics import mean, stdev
 from numpy import mean
 from torch.utils.data import Dataset, DataLoader
-from torch.autograd import Variable
 import numpy as np
 from scipy.sparse import coo_matrix
 import spconv
@@ -186,10 +185,7 @@ class NNwrapperGC():
 
 				yp = self.model(x)
 
-				try:
-					loss = lossfn(t.squeeze(yp.float(),1), y)
-				except IndexError:
-					loss = lossfn(yp.float(), y)
+				loss = lossfn(yp.squeeze().float(), y.float())
 
 				if penalty=="l2":
 					norm = sum(p.pow(2.0).sum() for p in self.model.parameters())
@@ -221,7 +217,7 @@ class NNwrapperGC():
 			i+=1
 			x= sample
 			x= t.tensor(x, dtype=t.float, device=device)
-			y_pred = self.model(Variable(x))        
+			y_pred = self.model(x)        
 			y_pred=t.sigmoid(y_pred)
 
 			if y_pred.data.squeeze().shape == t.Size([]):
@@ -288,7 +284,7 @@ class NNwrapperMutList():
 				xl = xl.to(self.device)
 				y = y.to(self.device)
 				yp = self.model.forward(x, xl)
-				loss = lossfn(yp, y.long())
+				loss = lossfn(yp.squeeze().float(), y.float())
 				loss.backward()
 				optimizer.step()
 				errTot += loss.data
@@ -390,7 +386,7 @@ class NNwrapperHC():
 				yp = self.model.forward(x, batchSize)
 				tforw += time.time() - t1
 				t1 = time.time()
-				loss = lossfn(yp, y.long())
+				loss = lossfn(yp.squeeze().float(), y.float())
 
 				loss.backward()
 				optimizer.step()
@@ -416,8 +412,8 @@ class NNwrapperHC():
 			coord, features, batchSize = sample
 			x = spconv.SparseConvTensor(features.to(device), coord.to(device), self.model.inputSpatialSize, batchSize)
 			y_pred = self.model.forward(x, batchSize)
-			s=t.sigmoid(y_pred)
-			y_pred = s(y_pred)
+			y_pred=t.sigmoid(y_pred)
+		
 			if y_pred.data.squeeze() == t.Size([]):
 					preds1 += [y_pred.data.squeeze().tolist()]
 			else:
