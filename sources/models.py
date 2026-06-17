@@ -21,7 +21,7 @@
 #  MA 02110-1301, USA.
 
 import sklearn
-import sys, csv, copy, math, pickle, os, random, time, socket
+import sys, csv, copy, math, pickle, os, random, time, socket, gc
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.preprocessing import StandardScaler
 import torch as t
@@ -32,12 +32,13 @@ from torch.utils.data import Dataset, DataLoader
 import torch.nn.functional as F
 from torch.autograd import Variable
 import numpy as np
+import spconv.pytorch as spconv
 
 ### GENE-CENTRIC MODELS 
 class NNlogreg(t.nn.Module):
-"""
-Class containing the NNlogreg architecture that consist of the shared gene module and a layer directly connection the gene nodes to the output.
-"""
+        """
+        Class containing the NNlogreg architecture that consist of the shared gene module and a layer directly connection the gene nodes to the output.
+        """
 	def __init__(self, genesize, numGenes, dropout):
 		super(NNlogreg, self).__init__()
 		self.genesize=genesize
@@ -56,9 +57,9 @@ Class containing the NNlogreg architecture that consist of the shared gene modul
 		return o
 
 class NNsmalldense(t.nn.Module):
-"""
-Class containing the NNsmalldense architecture that consist of the shared gene module and a fully connected hidden layer between the gene nodes and the output.
-"""
+        """
+        Class containing the NNsmalldense architecture that consist of the shared gene module and a fully connected hidden layer between the gene nodes and the output.
+        """
 	def __init__(self, genesize, numGenes, dropout):
 		super(NNsmalldense, self).__init__()
 		self.genesize=genesize
@@ -72,16 +73,16 @@ Class containing the NNsmalldense architecture that consist of the shared gene m
 		self.apply(init_weights)
 
 	def forward(self, x):
-		o=self.module1(x)
+		o=self.sharedgenemodule(x)
 		o=self.hidden(o.squeeze())
 		o=self.output(o)
 
 		return o
         
 class NNlargedense(t.nn.Module):
-"""
-Class containing the NNlargedense architecture that consist of the shared gene module and a fully connected hidden layer between the gene nodes and the output.
-"""
+        """
+        Class containing the NNlargedense architecture that consist of the shared gene module and a fully connected hidden layer between the gene nodes and the output.
+        """
 	def __init__(self, genesize, numGenes, dropout):
 		super(NNlargedense, self).__init__()
 		self.genesize=genesize
@@ -95,18 +96,18 @@ Class containing the NNlargedense architecture that consist of the shared gene m
 		self.apply(init_weights)
 
 	def forward(self, x):
-		o=self.module1(x)
+		o=self.sharedgenemodule(x)
 		o=self.hidden(o.squeeze())
 		o=self.output(o)
 
 		return o
 
 class NNbiosparse_GenePathway(t.nn.Module):
-"""
-Class containing the NNbiosparse_GenePathway architecture that consist of the shared gene module and a sparsified hidden layer, representing biological pathways between the gene nodes and the output.
-"""
+        """
+        Class containing the NNbiosparse_GenePathway architecture that consist of the shared gene module and a sparsified hidden layer, representing biological pathways between the gene nodes and the output.
+        """
 	def __init__(self, genesize, bioNetworks, dropout):
-		super(NN_biosparse_GenePathway, self).__init__()
+		super(NNbiosparse_GenePathway, self).__init__()
 		self.genesize=genesize
 		self.dropout=dropout
 
@@ -124,9 +125,9 @@ Class containing the NNbiosparse_GenePathway architecture that consist of the sh
 		return o
         
 class NNdo(t.nn.Module):
-"""
-Class containing the NNdropout architecture that consist of the shared gene module and a fully connected hidden layer between the gene nodes and the output, with a heavy dropout.
-"""
+        """
+        Class containing the NNdropout architecture that consist of the shared gene module and a fully connected hidden layer between the gene nodes and the output, with a heavy dropout.
+        """
 	def __init__(self, genesize, numGenes, dropout):
 		super(NNdo, self).__init__()
 		self.genesize=genesize
@@ -140,7 +141,7 @@ Class containing the NNdropout architecture that consist of the shared gene modu
 		self.apply(init_weights)
 
 	def forward(self, x):
-		o=self.module1(x)
+		o=self.sharedgenemodule(x)
 		o=self.hidden(o.squeeze())
 		o=self.output(o)
 
@@ -277,9 +278,9 @@ class SparseLinear(t.nn.Module):
 ### MUTATION LIST MODELS
 
 def masking(X, X_len):
-"""
-Function for masking required given the variable input size of the mutation list (depending on the number of exonic variants in the sample).
-"""
+        """
+        Function for masking required given the variable input size of the mutation list (depending on the number of exonic variants in the sample).
+        """
         maxlen = X.size(1)
         mask = t.arange(maxlen).to(X.device)[None, :] < X_len[:, None]
         mask=t.unsqueeze(mask,2)
@@ -288,9 +289,9 @@ Function for masking required given the variable input size of the mutation list
         return ~mask
 
 class GCN_mutlist(t.nn.Module): 
-"""
-Class containing the GCN_mutlist architecture which consists of two graph NN layers implementing a hierarchical graph betweeen variants and genes, and genes and pathways respectively.
-"""
+        """
+        Class containing the GCN_mutlist architecture which consists of two graph NN layers implementing a hierarchical graph betweeen variants and genes, and genes and pathways respectively.
+        """
         def __init__(self, numGenes, numOut, dropout, name = "NN", vartypeembsize =5, geneembsize=50):
                 super(GCN_mutlist, self).__init__()
                 os.system("mkdir -p models")
@@ -301,6 +302,7 @@ Class containing the GCN_mutlist architecture which consists of two graph NN lay
 
                 VARTYPESIZE = vartypeembsize
                 GENESIZE = geneembsize
+                self.vartypeEmb = t.nn.Embedding(11, VARTYPESIZE)
 
                 self.processVartype =  t.nn.Sequential(t.nn.Linear(VARTYPESIZE, 20), t.nn.LayerNorm(20), t.nn.Tanh(), t.nn.Linear(20,5), t.nn.LayerNorm(5), t.nn.Tanh(), t.nn.Dropout(self.dropout))
                 self.processGene = t.nn.Sequential(t.nn.Linear(4, 20), t.nn.LayerNorm(20), t.nn.Tanh(), t.nn.Linear(20,5), t.nn.LayerNorm(5), t.nn.Tanh(), t.nn.Dropout(self.dropout))
@@ -345,9 +347,9 @@ Class containing the GCN_mutlist architecture which consists of two graph NN lay
                 return x
 
 class TNN_mutlist(t.nn.Module): 
-"""
-Class containing the TNN_mutlist architecture which a biologically sparsified transformer structure on top of the mutation list encoding.
-"""
+        """
+        Class containing the TNN_mutlist architecture which a biologically sparsified transformer structure on top of the mutation list encoding.
+        """
         def __init__(self, numGenes, numOut, dropout, name = "NN", vartypeembsize =5, geneembsize=50, attSize=10):
                 super(TNN_mutlist, self).__init__()
                 os.system("mkdir -p models")
@@ -421,9 +423,9 @@ Class containing the TNN_mutlist architecture which a biologically sparsified tr
 
 ### HILBERT CURVE MODELS
 class HCspconv1(t.nn.Module):
-"""
-Class containing the first tried sparse convolutional model that takes the one-channel hilbert curves as input.
-"""
+        """
+        Class containing the first tried sparse convolutional model that takes the one-channel hilbert curves as input.
+        """
         def __init__(self, featSize, numOut, size,name = "NN", dropout=0.0 ):
                 super(HCspconv1, self).__init__()
                 print(size)
@@ -439,11 +441,11 @@ Class containing the first tried sparse convolutional model that takes the one-c
                 return x
                                 
 class HCspconv2(t.nn.Module):
-"""
-Class containing the third tried sparse convolutional model that takes the one-channel hilbert curves as input.
-"""
+        """
+        Class containing the third tried sparse convolutional model that takes the one-channel hilbert curves as input.
+        """
         def __init__(self, featSize, numOut, size,name = "NN", dropout=0.0 ):
-                super(HCspconv3, self).__init__()
+                super(HCspconv2, self).__init__()
                 print(size)
                 self.inputSpatialSize = size
                 self.sparseModel = spconv.SparseSequential(spconv.SparseConv2d(1,1,11,4), t.nn.LeakyReLU(), spconv.SparseConv2d(1,4,3,2), t.nn.LayerNorm(4), t.nn.LeakyReLU(), spconv.SparseConv2d(4,16,3,2), t.nn.LayerNorm(16), t.nn.LeakyReLU(), spconv.SparseConv2d(16,32,3,2), t.nn.LayerNorm(32), t.nn.LeakyReLU(), spconv.SparseConv2d(32,64,3,2), t.nn.LayerNorm(64), t.nn.LeakyReLU(), spconv.SparseConv2d(64,128,3,2), t.nn.LayerNorm(128), t.nn.LeakyReLU(), spconv.SparseConv2d(128,128,3,2), t.nn.LayerNorm(128), t.nn.LeakyReLU(), spconv.SparseConv2d(128,128,3,2), t.nn.LayerNorm(128), t.nn.LeakyReLU(), spconv.SparseConv2d(128,128,3,2), t.nn.LayerNorm(128), t.nn.LeakyReLU(), spconv.SparseConv2d(128,128,3,2), t.nn.LayerNorm(128), t.nn.LeakyReLU(), spconv.SparseConv2d(128,128,3,2), t.nn.LayerNorm(128), t.nn.LeakyReLU())
@@ -458,9 +460,9 @@ Class containing the third tried sparse convolutional model that takes the one-c
 
 
 def init_weights( m):
-"""
-Function for weight initialization of the neural network depending on the layer type.
-"""
+        """
+        Function for weight initialization of the neural network depending on the layer type.
+        """
 	if isinstance(m, t.nn.Conv1d) or isinstance(m, t.nn.Linear) or isinstance(m, spconv.SparseConv2d) or isinstance(m, t.nn.Conv2d):
 		print ("Initializing weights...", m.__class__.__name__)
 		#t.nn.init.normal(m.weight, 0, 0.01)
@@ -470,7 +472,7 @@ Function for weight initialization of the neural network depending on the layer 
 		print ("Initializing weights...", m.__class__.__name__)
 		t.nn.init.xavier_uniform_(m.weight.view(1,-1))
 		m.bias.data.fill_(0.1)
-    elif isinstance(m, t.nn.Embedding):
-        print ("Initializing weights...", m.__class__.__name__)
-        t.nn.init.xavier_uniform(m.weight)
+        elif isinstance(m, t.nn.Embedding):
+                print ("Initializing weights...", m.__class__.__name__)
+                t.nn.init.xavier_uniform_(m.weight)
 
