@@ -385,7 +385,7 @@ def mainGC():
         for index,i in enumerate(sampleids):
                 print(index)
                 file = "annotatedfile_" + i + ".avinput.hg19_multianno.txt"
-                db, snpidsmissing = parserGC(file, genes, features=features_noscorces, variantscores = False, genescores = False, missenseOnly=False, onlyRegions=None, snpidsmissing=snpidsmissing)
+                db, snpidsmissing = parserGC(file, genes, features=features_noscores, missenseOnly=False, onlyRegions=None, snpidsmissing=snpidsmissing)
                 listgenomes.append(db)
 
         if removezerogenes == True:
