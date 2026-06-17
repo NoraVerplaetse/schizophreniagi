@@ -22,7 +22,7 @@
 
 import sys, os, pickle
 import numpy as np
-import math
+import math,gc
 from hilbertcurve.hilbertcurve import HilbertCurve
 from scipy.sparse import coo_matrix
 
