@@ -53,7 +53,7 @@ def main(args):
 	mode = args[7]
 	
 	if mode == "toy":
-		PATH= "toxExample/"
+		PATH= "toyExample/"
 
 		X = np.load(PATH + "gene_centricTOY.npy")
 		y = np.load(PATH + "yTOY.npy")
@@ -106,8 +106,8 @@ def main(args):
 	for i in range(1):
 		cv=StratifiedKFold(CV_SETS, shuffle=True, random_state=i)
 		cvrun=0
-        mcc_train=0
-        mcc_test=0
+        auc_train=0
+        auc_test=0
         
 		for trainidx, testidx in cv.split(X, y): 
 			print('run ' + str(run) + ' cv '+str(cvrun))
