@@ -86,7 +86,7 @@ def main(args):
 		print("Running on ",hyperparameters['device'])
 		print("Epochs: ", hyperparameters['epochs'], "Weight decay: ", hyperparameters['weight_decay'], "penalty: ", pen,  "Drop out: ", str(dropout), "batch size: ", hyperparameters['batch_size'])
 
-    	#### CREATE SPARSE BIONET #####
+		#### CREATE SPARSE BIONET #####
 		edges_genepw=list(pickle.load(open(PATH+ "hierData/kegg/edges_genepw.pickle", "rb")))
 		for j in edges_genepw:
 			if j[0] not in genes:
@@ -97,18 +97,17 @@ def main(args):
 		globalNet=BN.BiologicalHierarchy([net_genepw])
 		print("BiologicalHierarchy built")
 
-    CV_SETS=3
-
-    auctest=[]
-    auctrain=[]
-    run=0
+	CV_SETS=3
+	auctest=[]
+	auctrain=[]
+	run=0
 
 	for i in range(1):
 		cv=StratifiedKFold(CV_SETS, shuffle=True, random_state=i)
 		cvrun=0
-        auc_train=0
-        auc_test=0
-        
+		auc_train=0
+		auc_test=0
+
 		for trainidx, testidx in cv.split(X, y): 
 			print('run ' + str(run) + ' cv '+str(cvrun))
 			Xtrainset, ytrainset = X[trainidx], y[trainidx]
@@ -118,11 +117,11 @@ def main(args):
 			print("shapes of Xtrain and ytrain ", Xtrainset.shape, ytrainset.shape)
 			
 			# Gene-centric models
-            model=nn.NNbiosparse_GenePathway(X.shape[2], globalNet, dropout)
+			model=nn.NNbiosparse_GenePathway(X.shape[2], globalNet, dropout)
 			#model=nn.NNlogreg(X.shape[2], X.shape[1], dropout)
-            #model=nn.NNsmalldense(X.shape[2], X.shape[1], dropout)
-            #model=nn.NNlargedense(X.shape[2], X.shape[1], dropout)
-            #model=nn.NNdo(X.shape[2], X.shape[1], dropout)
+			#model=nn.NNsmalldense(X.shape[2], X.shape[1], dropout)
+			#model=nn.NNlargedense(X.shape[2], X.shape[1], dropout)
+			#model=nn.NNdo(X.shape[2], X.shape[1], dropout)
 			
 			# Mutation list models
 			#model=nn.GCN_mutlist((X.shape[2], 1, dropout)
@@ -135,7 +134,7 @@ def main(args):
 
 			model.to(hyperparameters['device'])
 			print("model built")
-            
+
 			# Gene-centric wrapper
 			wrapper = wr.NNwrapperGC(model)
 			
@@ -156,16 +155,16 @@ def main(args):
 			Xtest = Xscaler.transform(Xtest)
 			print("shapes of Xtest and ytest ", Xtest.shape, ytest.shape)
 			predtest=wrapper.predict(Xtest, hyperparameters['device'], batch_size=hyperparameters['batch_size'])
-            
-            auc_train += roc_auc_score(ytrain, predtrain)
-            auc_test += roc_auc_score(ytest, predtest)
+			
+			auc_train += roc_auc_score(ytrain, predtrain)
+			auc_test += roc_auc_score(ytest, predtest)
 
 			del Xtest, ytest
 			gc.collect()
 			cvrun+=1
-            
-        auctrain.append(auc_train/CV_SETS)
-        auctest.append(auc_test/CV_SETS)            
+
+		auctrain.append(auc_train/CV_SETS)
+		auctest.append(auc_test/CV_SETS)            
 
 if __name__ == "__main__":
 	main(sys.argv)
