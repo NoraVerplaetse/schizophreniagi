@@ -26,12 +26,12 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.ensemble import RandomForestClassifier
 from statistics import mean, stdev
 import socket
-import sys, csv, copy, math, pickle, os, random, time
+import sys, csv, copy, math, pickle, os, random, time, gc
 import numpy as np
 
 
 def main(args):
-"""  main predictive function for the additive and non-linear baselines"""
+        """  main predictive function for the additive and non-linear baselines"""
 
         count=0
         X = np.load("SNPvector.npy")
