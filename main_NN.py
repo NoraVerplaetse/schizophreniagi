@@ -50,49 +50,52 @@ def main(args):
 	pen=args[4]
 	batch_size=int(args[5])
 	epochs=int(args[6])
+	mode = args[7]
 	
-	# Gene-centric inputs
-	path_to_dataX = PATH + "featvect.npy"
-	
-	# Mutation list inputs
-	#path_to_dataX = PATH + "mutationlist.npy"
-	#lengths = np.load(PATH + "mutationlist_lengths.npy")
-	
-	# Hilbert curve inputs
-	#path_to_dataX = PATH + "hilbertcurves_zygosity.npy"
-	
-	path_to_datay = PATH + "y.npy"
-	t1=time.time()
-	X = np.load(path_to_dataX)
-	y = np.load(path_to_datay)
-	t2=time.time()
-	print("Data loaded in ", t2-t1)
-	
+	if mode == "toy";
+		PATH= "toxExample/"
 
-	t1=time.time()
-	X = np.load(path_to_dataX)
-	y = np.load(path_to_datay)
-	t2=time.time()
-	print("Data loaded in ", t2-t1)
-    
-    genesdict=pickle.load(open(PATH + "genesdictRefGeneAnnovarComplete_withoutzerogenes", "rb"))
-	genes=list(genesdict.values())
+		X = np.load(PATH + "gene_centricTOY.npy")
+		y = np.load(PATH + "yTOY.npy")
+		globalNet = pickle.load(open(PATH + "globalNet_schizo.pickle", "rb"))
 
-	device = t.device(devicename)
-	hyperparameters={'device': t.device(devicename), 'epochs': epochs, 'learning_rate': 1e-3, 'weight_decay': weight_decay,'dropout': dropout, 'batch_size':batch_size}
-	print("Running on ",hyperparameters['device'])
-	print("Epochs: ", hyperparameters['epochs'], "Weight decay: ", hyperparameters['weight_decay'], "penalty: ", pen,  "Drop out: ", str(dropout), "batch size: ", hyperparameters['batch_size'])
+	else:
 
-    #### CREATE SPARSE BIONET #####
-	edges_genepw=list(pickle.load(open(PATH+ "hierData/kegg/edges_genepw.pickle", "rb")))
-	for j in edges_genepw:
-		if j[0] not in genes:
-			edges_genepw.remove(j)
-	print('after deleting edges not in genes', len(edges_genepw))
-	pwlist = pickle.load(open("keggpwlist.pickle", "rb"))
-	net_genepw=BN.BiologicalNetwork(edges_genepw, genes, pwlist)
-	globalNet=BN.BiologicalHierarchy([net_genepw])
-	print("BiologicalHierarchy built")
+		# Gene-centric inputs
+		path_to_dataX = PATH + "featvect.npy"
+	
+		# Mutation list inputs
+		#path_to_dataX = PATH + "mutationlist.npy"
+		#lengths = np.load(PATH + "mutationlist_lengths.npy")
+	
+		# Hilbert curve inputs
+		#path_to_dataX = PATH + "hilbertcurves_zygosity.npy"
+	
+		path_to_datay = PATH + "y.npy"
+		t1=time.time()
+		X = np.load(path_to_dataX)
+		y = np.load(path_to_datay)
+		t2=time.time()
+		print("Data loaded in ", t2-t1)
+	
+    	genesdict=pickle.load(open(PATH + "genesdictRefGeneAnnovarComplete_withoutzerogenes", "rb"))
+		genes=list(genesdict.values())
+
+		device = t.device(devicename)
+		hyperparameters={'device': t.device(devicename), 'epochs': epochs, 'learning_rate': 1e-3, 'weight_decay': weight_decay,'dropout': dropout, 'batch_size':batch_size}
+		print("Running on ",hyperparameters['device'])
+		print("Epochs: ", hyperparameters['epochs'], "Weight decay: ", hyperparameters['weight_decay'], "penalty: ", pen,  "Drop out: ", str(dropout), "batch size: ", hyperparameters['batch_size'])
+
+    	#### CREATE SPARSE BIONET #####
+		edges_genepw=list(pickle.load(open(PATH+ "hierData/kegg/edges_genepw.pickle", "rb")))
+		for j in edges_genepw:
+			if j[0] not in genes:
+				edges_genepw.remove(j)
+		print('after deleting edges not in genes', len(edges_genepw))
+		pwlist = pickle.load(open("keggpwlist.pickle", "rb"))
+		net_genepw=BN.BiologicalNetwork(edges_genepw, genes, pwlist)
+		globalNet=BN.BiologicalHierarchy([net_genepw])
+		print("BiologicalHierarchy built")
 
     CV_SETS=3
 
@@ -100,7 +103,7 @@ def main(args):
     auctrain=[]
     run=0
 
-	for i in range(10):
+	for i in range(1):
 		cv=StratifiedKFold(CV_SETS, shuffle=True, random_state=i)
 		cvrun=0
         mcc_train=0
