@@ -25,12 +25,12 @@ import time
 import torch as t
 
 class StructuredScalerGPU:
-"""
-A class to standardize the gene-centric encoding on GPU. 
-The integer counts of the 16 types of variants will be standardize on all genes and all samples,
-to ensure that the global distribution of the occurrences of each type of variant on the entire dataset is a Gaussian with mean 0 and variance 1, 
-making it more suitable for the neural net optimization.
-"""
+	"""
+	A class to standardize the gene-centric encoding on GPU. 
+	The integer counts of the 16 types of variants will be standardize on all genes and all samples,
+	to ensure that the global distribution of the occurrences of each type of variant on the entire dataset is a Gaussian with mean 0 and variance 1, 
+	making it more suitable for the neural net optimization.
+	"""
 	def __init__(self, device, epsilon=1e-9):
 		self.device = device
 		self.epsilon = epsilon
@@ -39,7 +39,7 @@ making it more suitable for the neural net optimization.
 		t1 = time.time()
 		if type(X) != t.tensor:
 			X = t.tensor(X)
-		X.to(self.device).to(t.float32)
+		X = X.to(self.device).to(t.float32)
 		t2 = time.time()
 		shape = X.size()
 
@@ -57,7 +57,7 @@ making it more suitable for the neural net optimization.
 		t1 = time.time()
 		if type(X) != t.tensor:
 				X = t.tensor(X)
-		X.to(self.device)
+		X = X.to(self.device)
 		shape = X.size()
 		X = X.view(shape[0]*shape[1], shape[2])
 
