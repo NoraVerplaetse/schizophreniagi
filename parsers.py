@@ -128,8 +128,8 @@ def parseMultiVCF(multivcffile, nbvariants, ids, genomeversion='hg19', SNPvector
         elif zygosityHC:
                 return zygosities, distances, db	   
 
-def parserGC(file, genelist, features=features_noscorces, snpidsmissing={}, missenseOnly=False, onlyRegions=["exonic"]):
-"""This function reads VCF file, annotated by annovar, and creates a matrix (numpy ndarray) containing information on variants per gene."""
+def parserGC(file, genelist, features=features_noscores, snpidsmissing={}, missenseOnly=False, onlyRegions=["exonic"]):
+        """This function reads VCF file, annotated by annovar, and creates a matrix (numpy ndarray) containing information on variants per gene."""
         ifp = open(file)
         line = ifp.readline()
         assert "Chr" in line and "Start" in line
@@ -235,10 +235,10 @@ def parserGC(file, genelist, features=features_noscorces, snpidsmissing={}, miss
                 line = ifp.readline()
                 linenr+=1
                 
-                return db
+        return db
 
 def parserMutlist(file, genelist, snpidsmissing={}, missenseOnly=True, onlyRegions=["exonic"], variantTypesHT=features_noscores):
-"""This function reads VCF file, annotated by annovar, and creates a matrix (numpy ndarray) containing information on variants per gene."""
+        """This function reads VCF file, annotated by annovar, and creates a matrix (numpy ndarray) containing information on variants per gene."""
         ifp = open(file)
         line = ifp.readline()
         assert "Chr" in line and "Start" in line
@@ -331,7 +331,7 @@ def parserMutlist(file, genelist, snpidsmissing={}, missenseOnly=True, onlyRegio
         return values, numMuts
 
 def castFloat(v):
-""" Function to process score cell value, casting multiple scores into one value (the average) or returning -1000 for missing values """
+        """ Function to process score cell value, casting multiple scores into one value (the average) or returning -1000 for missing values """
         a = None
         #take average if multiple scores for multiple transcripts
         if ";" in str(v):
@@ -354,7 +354,7 @@ def castFloat(v):
         return a
 
 def parseScore(s):
-""" Function to process score cell value, casting multiple scores into one value (first value) or returning -1 for missing values """
+        """ Function to process score cell value, casting multiple scores into one value (first value) or returning -1 for missing values """
         tmp=s.strip().split(";")
         if tmp[0] == '' or tmp[0] ==".":
                 score=-1
@@ -363,7 +363,7 @@ def parseScore(s):
         return score
         
 def mainSNPvectorAndHC():
-""" Main function to create snp vector containing 0,1,2 values for all variants depending on the presence, heterozygosity of homozygosity of the variant. 
+        """ Main function to create snp vector containing 0,1,2 values for all variants depending on the presence, heterozygosity of homozygosity of the variant. 
                             hilbert curves with genomic coordinates as 2D pixel coordinate and zygosity as value (0,1,2 values for all variants depending on the presence, heterozygosity of homozygosity of the variant)"""
         ids = pickle.load(open("ids_multivcf.pickle", 'rb'))
         multivcffile =  "multivcf.vcf"
@@ -373,7 +373,7 @@ def mainSNPvectorAndHC():
         return snpvector, HCzygosity
 
 def mainGC():
-""" Main function to create gene-centric feature matrix"""
+        """ Main function to create gene-centric feature matrix"""
         removezerogenes=False
         genesdict=pickle.load(open("genesdictRefGeneAnnovarComplete_withoutzerogenes", 'rb'))
         genes = {genesdict[i]:i for i in genesdict.keys()}
@@ -424,7 +424,7 @@ def mainGC():
         return np.array(listgenomes)
 
 def mainMutlist():
-""" Main function to create mutation list feature matrix together with lengths array that represents the unique number of variants in each sample."""
+        """ Main function to create mutation list feature matrix together with lengths array that represents the unique number of variants in each sample."""
         TEST = False
         genesdict=pickle.load(open("genesdictRefGeneAnnovarComplete_withoutzerogenes", 'rb'))
         genes = {genesdict[i]:i for i in genesdict.keys()}
