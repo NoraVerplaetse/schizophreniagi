@@ -50,7 +50,7 @@ def main(args):
 	pen=args[4]
 	batch_size=int(args[5])
 	epochs=int(args[6])
-	mode = args[7]
+	mode = args[7] if len(args) >7 else ""
 	
 	if mode == "toy":
 		PATH= "toyExample/"
