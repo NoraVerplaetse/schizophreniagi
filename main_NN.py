@@ -52,7 +52,7 @@ def main(args):
 	epochs=int(args[6])
 	mode = args[7]
 	
-	if mode == "toy";
+	if mode == "toy":
 		PATH= "toxExample/"
 
 		X = np.load(PATH + "gene_centricTOY.npy")
@@ -77,8 +77,8 @@ def main(args):
 		y = np.load(path_to_datay)
 		t2=time.time()
 		print("Data loaded in ", t2-t1)
-	
-    	genesdict=pickle.load(open(PATH + "genesdictRefGeneAnnovarComplete_withoutzerogenes", "rb"))
+		
+		genesdict=pickle.load(open(PATH + "genesdictRefGeneAnnovarComplete_withoutzerogenes", "rb"))
 		genes=list(genesdict.values())
 
 		device = t.device(devicename)
