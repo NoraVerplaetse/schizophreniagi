@@ -26,9 +26,9 @@ import torch as t
 import numpy as np
 
 class LookupList(object):
-"""
-Class defining a new data structure combining list and dictionary functionalities.
-"""
+	"""
+	Class defining a new data structure combining list and dictionary functionalities.
+	"""
 	def __init__(self, data=None):
 		self.lookup = {}
 		self.mylist = []
@@ -93,9 +93,9 @@ Class defining a new data structure combining list and dictionary functionalitie
 		return ""+str(self.mylist)
 
 class BiologicalNetwork(object):
-"""
-Class providing the needed functionalities to transform information on edges and nodes of a biological network into a BiologicalNetwork object that can be used to build biologically meaningful sparsified neural network layers.
-"""
+	"""
+	Class providing the needed functionalities to transform information on edges and nodes of a biological network into a BiologicalNetwork object that can be used to build biologically meaningful sparsified neural network layers.
+	"""
 	@dispatch(list, list)
 	def __init__(self, edges, nodes1):
 		self.edges = edges
@@ -207,7 +207,7 @@ Class providing the needed functionalities to transform information on edges and
 				for e in self.edges:
 					if e[0] == n:
 						self.edges.remove(e)
-						ec +1
+						ec +=1
 		print("Removed %d nodes1 and %d edges"%(c, ec))
 		c = 0
 		ec = 0
@@ -251,13 +251,13 @@ def readEdgesFromFile(f):
 	return list(edges)
 
 class BiologicalHierarchy(object):
-"""
-Class, taking in information on (possibly multiple) biological networks (in the form of a lists of edges or a BiologicalNetwork objects) 
-and making them suitable to build biologically meaningful sparsified neural network layers. 
-For subsequent layers, it will make sure the imput nodes of the layer have at least 1 connection, otherwise connecting them to the dummy node, 
-and that all output nodes have at least one input node, otherwise removing the output node.
+	"""
+	Class, taking in information on (possibly multiple) biological networks (in the form of a lists of edges or a BiologicalNetwork objects) 
+	and making them suitable to build biologically meaningful sparsified neural network layers. 
+	For subsequent layers, it will make sure the imput nodes of the layer have at least 1 connection, otherwise connecting them to the dummy node, 
+	and that all output nodes have at least one input node, otherwise removing the output node.
 
-"""
+	"""
 	def __init__(self, edgesLists, harmonizeNets=True):
 		self.bioNets = []
 		#print(edgesLists)
