@@ -27,7 +27,6 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 import sources.utils as U
 import sources.BioNets as BN
 import sources.models as nn
-import sources.wrappers as wr
 from statistics import mean, stdev
 from numpy import mean
 from torch.utils.data import Dataset, DataLoader
