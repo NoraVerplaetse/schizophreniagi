@@ -56,7 +56,7 @@ def main(args):
 
 		X = np.load(PATH + "gene_centricTOY.npy")
 		y = np.load(PATH + "yTOY.npy")
-		globalNet = pickle.load(open(PATH + "globalNet_schizo.pickle", "rb"))
+		globalNet = pickle.load(open(PATH + "globalNet.pickle", "rb"))
 
 	else:
 
