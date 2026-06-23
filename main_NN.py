@@ -164,7 +164,8 @@ def main(args):
 			cvrun+=1
 
 		auctrain.append(auc_train/CV_SETS)
-		auctest.append(auc_test/CV_SETS)            
+		auctest.append(auc_test/CV_SETS) 
+		print(f"Mean CV AUC - Train: {np.mean(auc_train/CV_SETS):.4f}, Test: {np.mean(auc_test/CV_SETS):.4f}")
 
 if __name__ == "__main__":
 	main(sys.argv)
