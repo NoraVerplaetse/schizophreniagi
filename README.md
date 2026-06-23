@@ -25,6 +25,10 @@ requirements.yml
 
 README.md -> this readme
 
+# Toy example #
+A small toy example is provided to test run the code.
+python main_NN.py <device> <weight_decay> <dropout> <penalty> <batchsize> <epochs> toy
+
 # How do I annotate exomes with ANNOVAR? #
 These are the links to Annovar documentaiton (http://annovar.openbioinformatics.org/en/latest/) and installation instructions (http://annovar.openbioinformatics.org/en/latest/user-guide/download/). To annotate the multiVCF from dbGaP, we ran the following command line :
 
